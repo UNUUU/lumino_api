@@ -1,8 +1,10 @@
 require 'sinatra'
 
+$stdout.sync = true
+
 get '/' do
 end
 
 post '/:id' do
-    "send #{params[:message]} to #{params[:id]}"
+  puts "send #{params[:message]} to #{params[:id]}"
 end
