@@ -1,5 +1,8 @@
 require 'sinatra'
 
 get '/' do
-  "Hello, world"
+end
+
+post '/:id' do
+    "send #{params[:message]} to #{params[:id]}"
 end
