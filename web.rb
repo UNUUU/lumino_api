@@ -1,18 +1,49 @@
 # coding: utf-8
 require 'sinatra'
+require 'mongo'
 
 $stdout.sync = true
 
+before do
+  @database = Mongo::Client.new(ENV['MONGO_URL'])
+end
+
 get '/' do
+  pushNotification(findNotificationToken('123456'), 'Hello, world')
+  status 202
 end
 
-put '/:id/notification' do
-  notification_token = params[:token:]
-  # TODO IDと紐づけてデータベースに保存する
+put '/:user_id/notification' do
+  user_id = params[:id]
+  token = params[:token]
+  upsertNotificationToken(user_id, token)
 end
 
-post '/:id/display' do
-  puts "send #{params[:message]} to #{params[:id]}"
-  # TODO IDから通知トークンをひいてきてプッシュ通知を送る
+post '/:user_id/display' do
+  user_id = params[:user_id]
+  message = params[:message]
+  pushNotification(findNotificationToken(user_id), message)
 end
 
+def upsertNotificationToken(user_id, token)
+  @database[:notifications].find_one_and_replace({:user_id => user_id},
+                                                 {'$set' => {:token => token}},
+                                                 {:upsert => true})
+end
+
+def findNotificationToken(user_id)
+  doc = @database[:notifications].find(:user_id => user_id).first
+  if doc.nil? then
+    return nil
+  end
+  doc[:token]
+end
+
+def pushNotification(token, message)
+  if token.nil? then
+    puts 'not found token'
+    return
+  end
+    puts "token: #{token}, message: #{message}"
+  # TODO プッシュ通知を送る
+end
