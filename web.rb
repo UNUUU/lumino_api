@@ -19,7 +19,7 @@ get '/' do
 end
 
 put '/:user_id/notification' do
-  user_id = params[:id]
+  user_id = params[:user_id]
   token = params[:token]
   upsertNotificationToken(user_id, token)
 end
@@ -48,6 +48,6 @@ def pushNotification(token, message)
   if token.nil? then
     raise 'not found notification token'
   end
-    puts "token: #{token}, message: #{message}"
+  puts "token: #{token}, message: #{message}"
   # TODO プッシュ通知を送る
 end
