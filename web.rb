@@ -2,6 +2,7 @@
 require 'sinatra'
 require 'json'
 require 'mongo'
+require 'net/https'
 
 $stdout.sync = true
 
@@ -21,15 +22,6 @@ before do
 end
 
 get '/' do
-  # begin
-  #   pushNotification('123456', 'Hello, world')
-  #   status 202
-  # rescue => e
-  #   puts e.message
-  #   status 400
-  # end
-  upsertNotificationToken('123456', 'abcdefghij')
-  status 201
 end
 
 put '/:user_id/notification' do
@@ -57,8 +49,14 @@ end
 post '/:user_id/display' do
   user_id = params[:user_id]
   message = params[:message]
-  pushNotification(user_id, message)
-  status 202
+
+  begin
+    pushNotification(user_id, message)
+    status 202
+  rescue => e
+    puts e.message
+    status 400
+  end
 end
 
 def upsertNotificationToken(user_id, token)
@@ -89,6 +87,28 @@ def pushNotification(user_id, message)
     raise 'not found notification token'
   end
   insertNotificationHistory(user_id, message)
-  # TODO プッシュ通知を送る
-  puts "token: #{token}, message: #{message}"
+
+  uri = URI.parse('https://fcm.googleapis.com/fcm/send')
+  header = {
+    'Content-Type' => 'application/json',
+    'Authorization' => "key=#{ENV['FIREBASE_SERVER_KEY']}"
+  }
+  request = Net::HTTP::Post.new(uri.request_uri, initheader = header)
+  request.body = {
+    to: token,
+    notification: {
+      body: message,
+      title: 'lumino'
+    }
+  }.to_json
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+  http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+  http.set_debug_output $stderr
+
+  response = nil
+  http.start do |h|
+    response = h.request(request)
+  end
+  return response
 end
