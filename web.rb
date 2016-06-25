@@ -39,7 +39,6 @@ end
 
 get '/:user_id/notification/history' do
   user_id = params[:user_id]
-  # TODO JSONに変換する
   messageList = findNotificationHistory(user_id).map {|history|
     if history[:created_at].nil? then
       created_at = ""
@@ -47,7 +46,7 @@ get '/:user_id/notification/history' do
       created_at = history[:created_at].timezone('Asia/Tokyo').strftime("%Y-%m-%d %H:%M:%S")
     end
     "#{history[:message]} #{created_at}"
-  }
+  }.sort {|a, b| b <=> a }
   content_type :json
   messageList.to_json
 end
