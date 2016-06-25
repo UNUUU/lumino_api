@@ -98,7 +98,8 @@ def pushNotification(user_id, message)
     to: token,
     notification: {
       body: message,
-      title: 'lumino'
+      title: 'lumino',
+      content_available: true
     }
   }.to_json
   http = Net::HTTP.new(uri.host, uri.port)
