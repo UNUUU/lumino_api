@@ -9,8 +9,13 @@ before do
 end
 
 get '/' do
-  pushNotification(findNotificationToken('123456'), 'Hello, world')
-  status 202
+  begin
+    pushNotification(findNotificationToken('123456'), 'Hello, world')
+    status 202
+  rescue => e
+    puts e.message
+    status 400
+  end
 end
 
 put '/:user_id/notification' do
@@ -41,8 +46,7 @@ end
 
 def pushNotification(token, message)
   if token.nil? then
-    puts 'not found token'
-    return
+    raise 'not found notification token'
   end
     puts "token: #{token}, message: #{message}"
   # TODO プッシュ通知を送る
