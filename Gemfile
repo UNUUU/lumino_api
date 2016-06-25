@@ -5,6 +5,7 @@ source "https://rubygems.org"
 # gem "rails"
 ruby "2.0.0"
 gem 'sinatra'
+gem 'json'
 gem 'mongo'
 
 
