@@ -28,13 +28,15 @@ get '/' do
   #   puts e.message
   #   status 400
   # end
-  # upsertNotificationToken('123456', 'abcdefg')
+  upsertNotificationToken('123456', 'abcdefghij')
+  status 201
 end
 
 put '/:user_id/notification' do
   user_id = params[:user_id]
   token = params[:token]
   upsertNotificationToken(user_id, token)
+  status 201
 end
 
 get '/:user_id/notification/history' do
@@ -47,6 +49,7 @@ get '/:user_id/notification/history' do
     end
     "#{history[:message]} #{created_at}"
   }.sort {|a, b| b <=> a }
+  status 200
   content_type :json
   messageList.to_json
 end
@@ -55,10 +58,11 @@ post '/:user_id/display' do
   user_id = params[:user_id]
   message = params[:message]
   pushNotification(user_id, message)
+  status 202
 end
 
 def upsertNotificationToken(user_id, token)
-  @database[:notification].find_one_and_replace({:user_id => user_id},
+  @database[:notification].find_one_and_update({:user_id => user_id},
                                                  {'$set' => {:token => token}},
                                                  {:upsert => true})
 end
