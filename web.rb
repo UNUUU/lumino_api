@@ -22,13 +22,6 @@ before do
 end
 
 get '/' do
-  begin
-    pushNotification('12F7988A-4BDC-4435-A1C0-08ECD6B910F5', 'Thank you!!!')
-    status 202
-  rescue => e
-    puts e.message
-    status 400
-  end
 end
 
 put '/:user_id/notification' do
