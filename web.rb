@@ -22,13 +22,6 @@ before do
 end
 
 get '/' do
-  begin
-    pushNotification('12F7988A-4BDC-4435-A1C0-08ECD6B910F5', 'Yahoooo')
-    status 202
-  rescue => e
-    puts e.message
-    status 400
-  end
 end
 
 put '/:user_id/notification' do
@@ -47,7 +40,7 @@ get '/:user_id/display/history' do
       created_at = history[:created_at].timezone('Asia/Tokyo').strftime("%Y-%m-%d %H:%M:%S")
     end
     "#{history[:message]} #{created_at}"
-  }.sort {|a, b| b <=> a }
+  }
   status 200
   content_type :json
   messageList.to_json
@@ -85,7 +78,7 @@ def insertNotificationHistory(user_id, message)
 end
 
 def findNotificationHistory(user_id)
-  @database[:notification_history].find({:user_id => user_id})
+  @database[:notification_history].find({:user_id => user_id}).sort(:created_at => -1)
 end
 
 def pushNotification(user_id, message)
