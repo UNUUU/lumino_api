@@ -22,6 +22,13 @@ before do
 end
 
 get '/' do
+  begin
+    pushNotification('12F7988A-4BDC-4435-A1C0-08ECD6B910F5', 'Yahoooo')
+    status 202
+  rescue => e
+    puts e.message
+    status 400
+  end
 end
 
 put '/:user_id/notification' do
@@ -31,7 +38,7 @@ put '/:user_id/notification' do
   status 201
 end
 
-get '/:user_id/notification/history' do
+get '/:user_id/display/history' do
   user_id = params[:user_id]
   messageList = findNotificationHistory(user_id).map {|history|
     if history[:created_at].nil? then
